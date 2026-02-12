@@ -5,12 +5,12 @@ import { Pool } from "pg";
 const databaseUrl = process.env.DATABASE_URL;
 
 if (!databaseUrl) {
-  console.error("DATABASE_URL environment variable is not set");
-  process.exit(1);
+	console.error("DATABASE_URL environment variable is not set");
+	process.exit(1);
 }
 
 const pool = new Pool({
-  connectionString: databaseUrl,
+	connectionString: databaseUrl,
 });
 const db = drizzleNode({ client: pool });
 
