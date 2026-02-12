@@ -1,53 +1,53 @@
-import { pool } from "@/database/pgConnection";
+import { and, eq, ne } from "drizzle-orm";
+import { db } from "@/database/pgConnection";
+import { users } from "@/database/schemas/user";
 import type { User } from "@/modules/user/user.model";
 
-interface UserRow {
-  id: number;
-  name: string;
-  email: string;
-  password: string;
-  created_at: Date;
-  updated_at: Date;
-}
-
 export class UserRepository {
-  private mapDbRowToUser(row: UserRow): User {
+  private mapDbRowToUser(row: typeof users.$inferSelect): User {
     return {
       id: row.id,
       name: row.name,
       email: row.email,
       password: row.password,
-      createdAt: row.created_at.toISOString(),
-      updatedAt: row.updated_at.toISOString(),
+      createdAt: row.createdAt.toISOString(),
+      updatedAt: row.updatedAt.toISOString(),
     };
   }
 
   async findAll(): Promise<User[]> {
-    const result = await pool.query(
-      "SELECT * FROM users ORDER BY created_at DESC",
-    );
-    return result.rows.map((row) => this.mapDbRowToUser(row));
+    const result = await db.select().from(users).orderBy(users.createdAt);
+    return result.map((row) => this.mapDbRowToUser(row));
   }
 
   async findById(id: number): Promise<User | null> {
-    const result = await pool.query("SELECT * FROM users WHERE id = $1", [id]);
-    return result.rows.length > 0 ? this.mapDbRowToUser(result.rows[0]) : null;
+    const result = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, id))
+      .limit(1);
+    return result.length > 0 ? this.mapDbRowToUser(result[0]) : null;
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const result = await pool.query("SELECT * FROM users WHERE email = $1", [
-      email,
-    ]);
-    return result.rows.length > 0 ? this.mapDbRowToUser(result.rows[0]) : null;
+    const result = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+    return result.length > 0 ? this.mapDbRowToUser(result[0]) : null;
   }
 
   async create(name: string, email: string, password: string): Promise<User> {
-    const now = new Date();
-    const result = await pool.query(
-      "INSERT INTO users (name, email, password, created_at, updated_at) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [name, email, password, now, now],
-    );
-    return this.mapDbRowToUser(result.rows[0]);
+    const result = await db
+      .insert(users)
+      .values({
+        name,
+        email,
+        password,
+      })
+      .returning();
+    return this.mapDbRowToUser(result[0]);
   }
 
   async update(
@@ -55,30 +55,35 @@ export class UserRepository {
     name?: string,
     email?: string,
   ): Promise<User | null> {
-    const now = new Date();
-    const result = await pool.query(
-      "UPDATE users SET name = COALESCE($2, name), email = COALESCE($3, email), updated_at = $4 WHERE id = $1 RETURNING *",
-      [id, name, email, now],
-    );
-    return result.rows.length > 0 ? this.mapDbRowToUser(result.rows[0]) : null;
+    const updateData: Partial<typeof users.$inferInsert> = {};
+    if (name !== undefined) updateData.name = name;
+    if (email !== undefined) updateData.email = email;
+
+    const result = await db
+      .update(users)
+      .set(updateData)
+      .where(eq(users.id, id))
+      .returning();
+    return result.length > 0 ? this.mapDbRowToUser(result[0]) : null;
   }
 
   async delete(id: number): Promise<boolean> {
-    const result = await pool.query("DELETE FROM users WHERE id = $1", [id]);
+    const result = await db.delete(users).where(eq(users.id, id));
     return (result.rowCount ?? 0) > 0;
   }
 
   async existsByEmail(email: string, excludeId?: number): Promise<boolean> {
-    let query = "SELECT 1 FROM users WHERE email = $1";
-    const params: (string | number)[] = [email];
-
+    const conditions = [eq(users.email, email)];
     if (excludeId) {
-      query += " AND id != $2";
-      params.push(excludeId);
+      conditions.push(ne(users.id, excludeId));
     }
 
-    const result = await pool.query(`${query} LIMIT 1`, params);
-    return result.rows.length > 0;
+    const result = await db
+      .select({ count: users.id })
+      .from(users)
+      .where(and(...conditions))
+      .limit(1);
+    return result.length > 0;
   }
 }
 
