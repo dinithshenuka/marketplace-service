@@ -30,7 +30,7 @@ let PORT = parsedEnv.data.PORT;
 try {
 	const baseUrl = new URL(parsedEnv.data.BASE_URL);
 	HOST = baseUrl.hostname;
-	PORT = baseUrl.port ? parseInt(baseUrl.port) : (baseUrl.protocol === "https:" ? 443 : 80);
+	PORT = baseUrl.port ? parseInt(baseUrl.port, 10) : baseUrl.protocol === "https:" ? 443 : 80;
 } catch {
 	// fallback to HOST and PORT
 }

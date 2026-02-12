@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { z } from "zod";
+import type { z } from "zod";
 
 import { ServiceResponse } from "@/common/models/serviceResponse";
 
@@ -24,22 +24,24 @@ declare global {
 	}
 }
 
-export const validateIdParam = (paramName = "id") => async (req: Request, res: Response, next: NextFunction) => {
-	const id = Array.isArray(req.params[paramName]) ? req.params[paramName][0] : req.params[paramName];
-	const parsedId = Number.parseInt(id, 10);
+export const validateIdParam =
+	(paramName = "id") =>
+	async (req: Request, res: Response, next: NextFunction) => {
+		const id = Array.isArray(req.params[paramName]) ? req.params[paramName][0] : req.params[paramName];
+		const parsedId = Number.parseInt(id, 10);
 
-	if (Number.isNaN(parsedId) || parsedId <= 0) {
-		const statusCode = StatusCodes.BAD_REQUEST;
-		const serviceResponse = ServiceResponse.failure(
-			`Validation error: Invalid ${paramName} format. Must be a positive integer.`,
-			null,
-			statusCode,
-		);
-		res.status(serviceResponse.statusCode).send(serviceResponse);
-		return;
-	}
+		if (Number.isNaN(parsedId) || parsedId <= 0) {
+			const statusCode = StatusCodes.BAD_REQUEST;
+			const serviceResponse = ServiceResponse.failure(
+				`Validation error: Invalid ${paramName} format. Must be a positive integer.`,
+				null,
+				statusCode,
+			);
+			res.status(serviceResponse.statusCode).send(serviceResponse);
+			return;
+		}
 
-	// Add the parsed ID to the request for easier access
-	req.parsedId = parsedId;
-	next();
-};
+		// Add the parsed ID to the request for easier access
+		req.parsedId = parsedId;
+		next();
+	};

@@ -2,10 +2,11 @@ import cors from "cors";
 import express, { type Express } from "express";
 import helmet from "helmet";
 import { pino } from "pino";
-import { openAPIRouter } from "@/modules/api-docs/openAPI.route";
+import passport from "@/common/config/passport";
 import errorHandler from "@/common/middleware/errorHandler";
 import requestLogger from "@/common/middleware/requestLogger";
 import { env } from "@/common/utils/envConfig";
+import { openAPIRouter } from "@/modules/api-docs/openAPI.route";
 import { setupRoutes } from "@/routes";
 
 const logger = pino({ name: "server start" });
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
 app.use(helmet());
+app.use(passport.initialize());
 
 // Request logging
 app.use(requestLogger);

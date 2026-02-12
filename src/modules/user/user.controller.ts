@@ -4,7 +4,7 @@ import type { CreateUserDto, UpdateUserDto } from "@/modules/user/user.dto";
 import { userService } from "@/modules/user/user.service";
 
 export class UserController {
-	async getAllUsers(req: Request, res: Response): Promise<void> {
+	async getAllUsers(_req: Request, res: Response): Promise<void> {
 		const serviceResponse = await userService.findAll();
 		res.status(serviceResponse.statusCode).send(serviceResponse);
 	}

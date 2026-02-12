@@ -8,6 +8,7 @@ export const CreateUserDtoSchema = z.object({
 		.max(100, "Name too long")
 		.regex(/^[a-zA-Z0-9\s\-_.']+$/, "Name contains invalid characters"),
 	email: z.string().email("Invalid email format").max(255, "Email too long"),
+	password: z.string().min(6, "Password must be at least 6 characters").max(255, "Password too long"),
 });
 
 export const UpdateUserDtoSchema = z.object({
@@ -25,8 +26,8 @@ export const UserResponseDtoSchema = z.object({
 	id: z.number(),
 	name: z.string(),
 	email: z.string(),
-	createdAt: z.date(),
-	updatedAt: z.date(),
+	createdAt: z.string(),
+	updatedAt: z.string(),
 });
 
 // Types

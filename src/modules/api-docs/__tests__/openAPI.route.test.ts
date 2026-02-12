@@ -1,9 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import request from "supertest";
-
-import { app } from "@/server";
-
 import { generateOpenAPIDocument } from "@/modules/api-docs/openAPIDocumentGenerator";
+import { app } from "@/server";
 
 describe("OpenAPI Router", () => {
 	describe("Swagger JSON route", () => {
