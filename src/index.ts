@@ -4,7 +4,7 @@ import { app, logger } from "@/server";
 const server = app.listen(env.PORT, () => {
 	const { NODE_ENV, HOST, PORT, BASE_URL } = env;
 	logger.info(`Server (${NODE_ENV}) running on port http://${HOST}:${PORT}`);
-	logger.info(`API docs available at ${BASE_URL}/api-docs`);
+	logger.info(`API docs available at ${BASE_URL}/api/v1/api-docs`);
 });
 
 const onCloseSignal = () => {

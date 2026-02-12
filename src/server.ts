@@ -6,7 +6,6 @@ import passport from "@/common/config/passport";
 import errorHandler from "@/common/middleware/errorHandler";
 import requestLogger from "@/common/middleware/requestLogger";
 import { env } from "@/common/utils/envConfig";
-import { openAPIRouter } from "@/modules/api-docs/openAPI.route";
 import { setupRoutes } from "@/routes";
 
 const logger = pino({ name: "server start" });
@@ -27,9 +26,6 @@ app.use(requestLogger);
 
 // Routes
 setupRoutes(app);
-
-// Swagger UI
-app.use("/api-docs", openAPIRouter);
 
 // Error handlers
 app.use(errorHandler());

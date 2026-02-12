@@ -9,7 +9,7 @@ export const healthCheckRouter: Router = express.Router();
 
 healthCheckRegistry.registerPath({
 	method: "get",
-	path: "/health",
+	path: "/api/v1/health-check",
 	tags: ["Health Check"],
 	responses: createApiResponse(z.null(), "Success"),
 });
